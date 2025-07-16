@@ -1,0 +1,17 @@
+[Appearance]
+HideSkinBorders=true
+Translucency=true
+
+[Desktop Entry]
+DefaultProfile=Garuda.profile
+
+[Dialogs]
+FirstRun=false
+
+[FileDialogSize]
+2 screens: Height=540
+2 screens: Width=960
+
+[Window]
+Height=80
+Width=100
