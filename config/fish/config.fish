@@ -167,7 +167,7 @@ fish_add_path /usr/local/go/bin
 fish_add_path /home/daniel/go/bin
 
 # Quick navigation to common configs
-alias gof="cd ~/Workspace/dotfiles/config/fish"
+alias gof="cd ~/.config/fish"
 alias gon="cd ~/.config/nvim"
 
 # git alias
