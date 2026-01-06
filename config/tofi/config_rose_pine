@@ -1,0 +1,15 @@
+width = 50%
+height = 50%
+result-spacing = 25
+num-results = 5
+
+font = JetBrainsMono Nerd Font
+font-size 24
+
+text-color = #e0def4        # Rose Pine "Text"
+prompt-text = " : "
+
+background-color = #191724d9 # Rose Pine "Base" with alpha
+selection-color = #31748f    # Rose Pine "Foam"
+outline-color = #26233a      # Rose Pine "Surface"
+border-color = #9ccfd8       # Rose Pine "Iris"

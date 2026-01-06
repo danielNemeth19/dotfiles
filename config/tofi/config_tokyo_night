@@ -1,0 +1,18 @@
+width = 50%
+height = 50%
+result-spacing = 25
+num-results = 5
+
+font = JetBrainsMono Nerd Font
+font-size = 24
+
+text-color = #4e4e5f
+
+prompt-text = " : "
+
+background-color = #1a1b26cc
+selection-color = #7aa2f7
+
+outline-color = #1a1b26
+border-color = #7aa2f7
+border-width = 5
