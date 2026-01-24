@@ -28,10 +28,10 @@ if test -d ~/.local/bin
     end
 end
 
-# Add depot_tools to PATH
-if test -d ~/Applications/depot_tools
-    if not contains -- ~/Applications/depot_tools $PATH
-        set -p PATH ~/Applications/depot_tools
+# Add ~/.cargo/bin to PATH
+if test -d ~/.cargo/bin
+    if not contains -- ~/.cargo/bin $PATH
+        set -p PATH ~/.cargo/bin
     end
 end
 
@@ -157,7 +157,7 @@ alias rip="expac --timefmt='%Y-%m-%d %T' '%l\t%n %v' | sort | tail -200 | nl"
 
 ## Run fastfetch if session is interactive
 if status --is-interactive && type -q fastfetch
-   fastfetch --load-config dr460nized
+   fastfetch --config dr460nized.jsonc
 end
 
 # Adds go to PATH
@@ -201,6 +201,8 @@ alias hf="history | fzf"
 
 # open in nvim with fzf
 alias nn="nvim (fzf --preview 'bat --color=always --style=header,numbers --line-range=:500 {}')"
+
+alias conv="/home/daniel/python-virtualenv/utilities/bin/python /home/daniel/Workspace/utilities/conv.py"
 
 # Generated for envman. Do not edit.
 test -s ~/.config/envman/load.fish; and source ~/.config/envman/load.fish
