@@ -166,6 +166,10 @@ fish_add_path /usr/local/go/bin
 # Adds user go bin to PATH
 fish_add_path /home/daniel/go/bin
 
+# Adds fnm (node version manager like nvm) to PATH
+fish_add_path /home/daniel/.local/share/fnm
+fnm env --use-on-cd | source
+
 # Quick navigation to common configs
 alias gof="cd ~/.config/fish"
 alias gon="cd ~/.config/nvim"
@@ -202,7 +206,9 @@ alias hf="history | fzf"
 # open in nvim with fzf
 alias nn="nvim (fzf --preview 'bat --color=always --style=header,numbers --line-range=:500 {}')"
 
-alias conv="/home/daniel/python-virtualenv/utilities/bin/python /home/daniel/Workspace/utilities/conv.py"
+alias conv="source ~/Workspace/pyffmpeg-wrapper/.venv/bin/activate.fish && uv run pyffmpeg_wrapper"
+
+alias cs="du -h -d 1 | sort -hr"
 
 # Generated for envman. Do not edit.
 test -s ~/.config/envman/load.fish; and source ~/.config/envman/load.fish

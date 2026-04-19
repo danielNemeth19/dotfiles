@@ -1,0 +1,50 @@
+Base tutorial:
+    - https://github.com/gaurav23b/simple-hyprland
+
+Dolphin theming:
+- icons are here: /usr/share/icons/candy-icons/
+    - had to delete 'master' from folder name and owned by my user
+    - then i set this in ~/.config/kdeglobals:
+    [Icons]
+    Theme=candy-icons
+- theme:
+    - themes need to be installed in ~/.config/Kvantum/catppuccin-mocha-blue
+    - theme has to have a .kvconfig file
+    - after starting kvantummanager theme needs to be selected in the "change/delete" section
+
+SDDM theming
+- theme folder needs to be copied to /ust/share/sddm/themes
+- to try a theme, do `sddm-greeter --test-mode --theme /ust/share/sddm/themes/sugar-candy`
+    - to exit out of it do ctrl-c
+- to set a theme, it needs to be set in /etc/sddm.conf as:
+    [Theme]
+    Current=tokyo-night-sddm
+
+Bluetooth issues:
+**1. Install PipeWire and Bluetooth Support**
+```
+sudo pacman -S pipewire pipewire-pulse pipewire-alsa pipewire-jack wireplumber bluez bluez-utils
+```
+**2. Enable and Start Services**
+- Enable and start the Bluetooth service:
+  ```
+  sudo systemctl enable --now bluetooth
+  ```
+- Enable PipeWire user services:
+  ```
+  systemctl --user enable --now pipewire pipewire-pulse wireplumber
+  ```
+
+**3. Check if PipeWire is Running**
+- Run:
+  ```
+  systemctl --user status pipewire
+  systemctl --user status pipewire-pulse
+  ```
+
+**4. Reboot or Log Out and Back In**
+- This ensures all services start correctly.
+
+**5. Test Audio**
+- Use `pavucontrol` (install with `sudo pacman -S pavucontrol`) to check audio devices and profiles.
+
