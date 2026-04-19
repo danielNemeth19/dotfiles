@@ -12,7 +12,7 @@
 - List keymaps:  
   `localectl list-keymaps`
 - Set Hungarian layout:  
-  `loadkeys hu101`
+  `loadkeys hu`
 
 ## 3. Verify Boot Mode
 - Check UEFI mode:  
@@ -21,8 +21,34 @@
 
 ## 4. Connect to the Internet
 - For Ethernet: Plug in cable.
-- For Wi-Fi:  
-  `iwctl`
+- For Wi-Fi (using `iwctl`):
+
+  1. Start the interactive tool:
+     ```
+     iwctl
+     ```
+  2. List available devices:
+     ```
+     device list
+     ```
+  3. Scan for Wi-Fi networks (replace `wlan0` with your device if different):
+     ```
+     station wlan0 scan
+     ```
+  4. List available networks:
+     ```
+     station wlan0 get-networks
+     ```
+  5. Connect to your network (replace `SSID` with your network name):
+     ```
+     station wlan0 connect SSID
+     ```
+     - You will be prompted for the Wi-Fi password if required.
+
+  6. Exit `iwctl`:
+     ```
+     exit
+     ```
 - Test:  
   `ping archlinux.org`
 
@@ -38,14 +64,28 @@
 - **Root**: `/dev/nvme0n1p2` (format this)
 
 ## 7. Format Partitions
-- **EFI:** Only format if you created a new one (not needed here).
-- **Swap:** Only initialize if new (not needed here).
-- **Root:**  
-  - If you want to use ext4:  
-    `mkfs.ext4 /dev/nvme0n1p2`
-  - If you want to use btrfs:  
-    `mkfs.btrfs /dev/nvme0n1p2`
+- **EFI Partition (`/dev/nvme0n1p1`):**
+  - Partition doesn't need to be re-created if exists
+  - If you want a completely clean boot setup (recommended for single-boot or if you had boot issues), **reformat the EFI partition**:
+    ```
+    mkfs.fat -F32 /dev/nvme0n1p1
+    ```
+- **Swap Partition (`/dev/nvme0n1p3`):**
+  - Only initialize if new or you want to erase it:
+    ```
+    mkswap /dev/nvme0n1p3
+    ```
 
+- **Root Partition (`/dev/nvme0n1p2`):**
+  - Format as desired:
+    - For ext4:
+      ```
+      mkfs.ext4 /dev/nvme0n1p2
+      ```
+    - For btrfs:
+      ```
+      mkfs.btrfs /dev/nvme0n1p2
+      ```
 ## 8. Mount File Systems
 - Mount root:  
   `mount /dev/nvme0n1p2 /mnt`
@@ -122,7 +162,7 @@
   - NetworkManager will remember this network and auto-connect on future boots.
 
 ## 16. Bluetooth Setup
-- Enable and start Bluetooth service:
+- Enable and start Bluetooth service (start is ignored in chroot!!):
   ```
   systemctl enable bluetooth
   systemctl start bluetooth
@@ -162,6 +202,32 @@
 - (Optional) Verify:
   - You should see `/boot/EFI/GRUB` or `/boot/EFI/Boot/` directories and `/boot/grub/grub.cfg` after these steps.
 
+**Acer Nitro 5 Notes:**
+- Acer firmware may only recognize bootloaders at `/EFI/BOOT/BOOTX64.EFI`. Always copy GRUB there after install.
+- If you see only "UEFI Shell" or a null string in BIOS, check that the EFI partition is FAT32, flagged as ESP, and contains `/EFI/BOOT/BOOTX64.EFI`.
+- Use the F12 boot menu (enable in BIOS if needed) to select the correct boot device if it does not boot automatically.
+
+**Troubleshooting after reformatting EFI:**
+- After reformatting, you must:
+- Reinstall the kernel (`pacman -S linux linux-firmware`) after chrooting, because `/boot` will be empty.
+- Reinstall GRUB and regenerate the GRUB config.
+- Regenerate `/etc/fstab` or update the UUID for `/boot` (EFI) if it changed.
+- Copy GRUB to the fallback location for Acer laptops:
+  ```
+  mkdir -p /boot/EFI/BOOT
+  cp /boot/EFI/GRUB/grubx64.efi /boot/EFI/BOOT/BOOTX64.EFI
+  ```
+- In BIOS, set your HDD/SSD as the first boot device. On Acer Nitro 5, you may need to use the F12 boot menu or manually select the fallback bootloader.
+
+- If you get "dependency failed for /boot" or "timed out waiting for device," update `/etc/fstab` with the new EFI partition UUID or regenerate it:
+  ```
+  genfstab -U /mnt > /mnt/etc/fstab
+  ```
+- If GRUB menu is missing Arch Linux, reinstall the kernel and regenerate the GRUB config.
+
+
+
+
 ## 20. Create a User and Configure Sudo
 - Install sudo:
   ```
@@ -172,10 +238,17 @@
   useradd -m -G wheel -s /bin/bash yourusername
   passwd yourusername
   ```
+- if default shell needs to be fish, then
+  ```
+  pacman -S fish
+  useradd -m -G wheel -s /bin/fish yourusername
+  passwd yourusername
+  ```
+
 - Allow users in the `wheel` group to use sudo:
   - Edit `/etc/sudoers` with `visudo`:
     ```
-    visudo
+    sudo EDITOR=nvim visudo
     ```
   - Uncomment the line:
     ```
