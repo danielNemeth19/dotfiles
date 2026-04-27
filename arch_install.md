@@ -61,7 +61,8 @@
 - **Do NOT re-create or format**:
   - EFI: `/dev/nvme0n1p1`
   - Swap: `/dev/nvme0n1p3`
-- **Root**: `/dev/nvme0n1p2` (format this)
+- **Format this**:
+  - Root: `/dev/nvme0n1p2` (format this)
 
 ## 7. Format Partitions
 - **EFI Partition (`/dev/nvme0n1p1`):**
@@ -98,15 +99,12 @@
 - Edit `/etc/pacman.d/mirrorlist` for fastest mirrors.
 
 ## 10. Install Base System
-- `pacstrap -K /mnt base linux linux-firmware amd-ucode mesa nvidia nvidia-utils nvidia-prime nvim`
+- `pacstrap -K /mnt base linux linux-headers linux-firmware amd-ucode mesa nvim`
+  - `linux-headers` is required for building kernel modules (e.g., NVIDIA DKMS).
   - `amd-ucode` is needed for AMD chips
     - If you ever switch to an Intel CPU, use `intel-ucode` instead
   - The bootloader (GRUB) will automatically detect and load the microcode update if `amd-ucode` is installed.
   - `mesa`: AMD open-source graphics driver
-  - `nvidia`, `nvidia-utils`: NVIDIA proprietary driver and utilities
-  - `nvidia-prime`: For PRIME offloading (run apps on NVIDIA GPU with `prime-run`)
-- For Vulkan support (optional, for gaming/graphics), Steam or 32-bit apps:
-  - `pacstrap -K /mnt vulkan-icd-loader lib32-vulkan-icd-loader lib32-nvidia-utils lib32-mesa`
 - For Bluetooth support:
   - `pacstrap -K /mnt bluez bluez-utils`
 - For NetworkManager (Wi-Fi/Ethernet auto-connect):
@@ -274,6 +272,62 @@
 - For further setup, see [General Recommendations](https://wiki.archlinux.org/title/General_recommendations).
 - If you encounter issues, consult the [Arch Wiki Installation Guide](https://wiki.archlinux.org/title/Installation_guide) and relevant hardware pages.
 
+## 23. (If applicable): NVIDIA Driver Setup (580xx series, post-install)
+- Install kerner headers (required from DMKS modules) - ideally, should be installed already after step 10
+  ```
+  sudo pacman -S linux-headers
+  ```
+- If you use a different kernel (e.g., `linux-lts`), install the corresponding headers package (e.g., `linux-lts-headers`).
+- Install the NVIDIA 580xx DKMS driver and utilities (using yay or another AUR helper):
+  ```
+  yay -S nvidia-580xx-dkms nvidia-580xx-utils nvidia-580xx-settings
+  ```
+- For Vulkan support (optional, for gaming/graphics), Steam or 32-bit apps:
+  ```
+  sudo pacman -S vulkan-icd-loader lib32-vulkan-icd-loader lib32-nvidia-580xx-utils
+- Regenerate the initramfs to ensure the NVIDIA kernel module is included at boot:
+  ```
+  sudo mkinitcpio -P
+  ```
+- Reboot to load the NVIDIA kernel module:
+  ```
+  sudo reboot
+  ```
+- After reboot check
+  ```
+  # Check the module is loaded
+  lsmod | grep nvidia
+
+  # Check GPU status
+  nvidia-smi
+
+  # Optional: Check your Xorg/Wayland session
+  glxinfo | grep "OpenGL renderer"
+  ```
+- on my Acer Nitro 5 with hybrid GPU (AMD + Nvidia)
+- see [Niri - Multi GPU configuration](https://wiki.archlinux.org/title/Niri)
+    - check render devices:
+    ```
+    ls -l /dev/dri/by-path/*-render
+    lrwxrwxrwx - root 27 Apr 22:57  /dev/dri/by-path/pci-0000:01:00.0-render -> ../renderD129
+    lrwxrwxrwx - root 27 Apr 22:57  /dev/dri/by-path/pci-0000:05:00.0-render -> ../renderD128
+
+    ```
+    - then using the address check which one is the AMD GPU
+    ```
+    lspci -s 01:00.0
+    01:00.0 3D controller: NVIDIA Corporation GP107M [GeForce GTX 1050 Ti Mobile] (rev a1)
+    lspci -s 05:00.0
+    05:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Picasso/Raven 2 [Radeon Vega Series / Radeon Vega Mobile Series] (rev c1)
+    ```
+    - this identifies the AMD GPU as renderD128 -> set this in ~/.config/niri/config.kdl as per the below:
+    ```
+    ~/.config/niri/config.kdl
+    debug {
+        render-drm-device "/dev/dri/renderD128"
+    }
+
+    ```
 ---
 
 **Summary of partition usage:**
