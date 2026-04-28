@@ -56,27 +56,35 @@
 - `timedatectl set-ntp true`
 
 ## 6. Partition Disks
-- List disks:  
-  `lsblk`
-- **Do NOT re-create or format**:
+- List disks: `lsblk`
+- [Great tutorial](https://www.youtube.com/watch?v=8-8hFPjM46M&list=PL8_76D_jRwRud_CsV_sF3m3mTJIBLRWlF&index=1)
+- If disk size permits, install linux on SSD drive
+- If layout is good, don't re-partion, only format required paritions in next step
+
+**Acer Nitro 5 Notes:**
+- **Do NOT re-create**:
   - EFI: `/dev/nvme0n1p1`
   - Swap: `/dev/nvme0n1p3`
+  - Root: `/dev/nvme0n1p2`
 - **Format this**:
-  - Root: `/dev/nvme0n1p2` (format this)
+  - EFI: `/dev/nvme0n1p1` (optional but advised)
+  - Root: `/dev/nvme0n1p2`(required)
 
 ## 7. Format Partitions
 - **EFI Partition (`/dev/nvme0n1p1`):**
   - Partition doesn't need to be re-created if exists
-  - If you want a completely clean boot setup (recommended for single-boot or if you had boot issues), **reformat the EFI partition**:
+  - Reformat only if you want a clean boot setup or are experiencing boot issues:
     ```
     mkfs.fat -F32 /dev/nvme0n1p1
     ```
+  - Reformatting erases all existing bootloaders and data on the EFI partition.
+  - Reformatting is strongly advised, as existing bootloaders can cause issues in the BIOS.
 - **Swap Partition (`/dev/nvme0n1p3`):**
-  - Only initialize if new or you want to erase it:
+  - Always initialize the swap partition before use:
     ```
     mkswap /dev/nvme0n1p3
     ```
-
+  - This erases any old data and prepares the partition for swapping.
 - **Root Partition (`/dev/nvme0n1p2`):**
   - Format as desired:
     - For ext4:
@@ -129,7 +137,7 @@
 - Create `/etc/locale.conf` with:  
   `LANG=en_US.UTF-8`
 - Set keymap in `/etc/vconsole.conf`:  
-  `KEYMAP=hu101`
+  `KEYMAP=hu`
 
 ## 15. Network Configuration
 - Set your hostname (replace `myhostname` with your desired hostname):
