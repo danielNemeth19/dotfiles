@@ -6,20 +6,25 @@
 // Input device configuration.
 // Find the full list of options on the wiki:
 // https://yalter.github.io/niri/Configuration:-Input
-
 environment {
     XDG_CURRENT_DESKTOP "niri"
     QT_QPA_PLATFORM "wayland"
     ELECTRON_OZONE_PLATFORM_HINT "auto"
-    QT_QPA_PLATFORMTHEME "gtk3"
-    QT_QPA_PLATFORMTHEME_QT6 "gtk3"
+    QT_QPA_PLATFORMTHEME "qt6ct"
+    QT_QPA_PLATFORMTHEME_QT6 "qt6ct"
+    CLUTTER_BACKEND "wayland"
+    GDK_BACKEND "wayland,x11"
+    QT_QPA_PLATFORM "wayland"
+    SDL_VIDEODRIVER "wayland"
+    MOZ_ENABLE_WAYLAND "1"
 }
 
 
 input {
     keyboard {
         xkb {
-            layout "hu"
+            layout "us,hu"
+            options "grp:caps_toggle,altwin:swap_alt_win"
         }
 
         // Enable numlock on startup, omitting this setting disables it.
@@ -76,7 +81,11 @@ input {
 // Find more information on the wiki:
 // https://yalter.github.io/niri/Configuration:-Outputs
 // Remember to uncomment the node by removing "/-"!
-/-output "eDP-1" {
+output "HDMI-A-1" {
+    mode "2560x1440@60.000"
+    scale 1
+}
+output "eDP-1" {
     // Uncomment this line to disable this output.
     // off
 
@@ -89,7 +98,7 @@ input {
     mode "1920x1080@120.030"
 
     // You can use integer or fractional scale, for example use 1.5 for 150% scale.
-    scale 2
+    scale 1
 
     // Transform allows to rotate the output counter-clockwise, valid values are:
     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
@@ -104,7 +113,7 @@ input {
     // so to put another output directly adjacent to it on the right, set its x to 1920.
     // If the position is unset or results in an overlap, the output is instead placed
     // automatically.
-    position x=1280 y=0
+    //position x=1280 y=0
 }
 
 // Settings that influence how windows are positioned and sized.
@@ -374,14 +383,13 @@ binds {
     Mod+T hotkey-overlay-title="Open a Terminal: kitty" {
         spawn "kitty"; 
     }
-    Mod+Space hotkey-overlay-title="Application launcher" {
+    Mod+D hotkey-overlay-title="Application launcher" {
         spawn "dms" "ipc" "call" "spotlight" "toggle";
     }
     Mod+S hotkey-overlay-title="Settings" {
         spawn "dms" "ipc" "call" "settings" "focusOrToggle";
     }
-
-    Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    Mod+B hotkey-overlay-title="Launch browser" { spawn "firefox"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
 
     // Example volume keys mappings for PipeWire & WirePlumber.
@@ -630,7 +638,7 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
     
-
+    Mod+Shift+Ctrl+T { toggle-debug-tint; }
 
 }
 
