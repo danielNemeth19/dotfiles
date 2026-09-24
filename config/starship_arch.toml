@@ -105,6 +105,7 @@ style = "bold #8be9fd"
 truncate_to_repo = true
 truncation_length = 0
 truncation_symbol = "repo: "
+read_only = " "
 
 [git_branch]
 #format = " [  $branch](fg:#9198a1)"
