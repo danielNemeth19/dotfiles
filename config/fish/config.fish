@@ -5,6 +5,10 @@ set VIRTUAL_ENV_DISABLE_PROMPT "1"
 set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
 set -x MANROFFOPT "-c"
 
+# setting default editor
+set -gx EDITOR nvim
+set -gx VISUAL nvim
+
 ## Export variable need for qt-theme
 if type "qtile" >> /dev/null 2>&1
    set -x QT_QPA_PLATFORMTHEME "qt5ct"
@@ -21,19 +25,21 @@ if test -f ~/.fish_profile
   source ~/.fish_profile
 end
 
-# Add ~/.local/bin to PATH
-if test -d ~/.local/bin
-    if not contains -- ~/.local/bin $PATH
-        set -p PATH ~/.local/bin
-    end
-end
+# Adds go to PATH
+fish_add_path /usr/local/go/bin
 
-# Add ~/.cargo/bin to PATH
-if test -d ~/.cargo/bin
-    if not contains -- ~/.cargo/bin $PATH
-        set -p PATH ~/.cargo/bin
-    end
-end
+# Adds user bin to PATH
+fish_add_path /home/daniel/.local/bin
+
+# Adds user go bin to PATH
+fish_add_path /home/daniel/go/bin
+
+# Adds cargo go bin to PATH
+fish_add_path /home/daniel/.cargo/bin
+
+# Adds fnm (node version manager like nvm) to PATH
+fish_add_path /home/daniel/.local/share/fnm
+fnm env --use-on-cd | source
 
 
 ## Starship prompt
@@ -45,6 +51,13 @@ end
 ## Advanced command-not-found hook
 #source /usr/share/doc/find-the-command/ftc.fish
 
+##Keybind setup
+fish_vi_key_bindings
+
+function fish_user_key_bindings
+    # Restore Ctrl+F to its default behaviour (forward one char / accept suggestion)
+    bind -M insert ctrl-f forward-char
+end
 
 ## Functions
 # Functions needed for !! and !$ https://github.com/oh-my-fish/plugin-bang-bang
@@ -160,15 +173,6 @@ if status --is-interactive && type -q fastfetch
    fastfetch --config dr460nized.jsonc
 end
 
-# Adds go to PATH
-fish_add_path /usr/local/go/bin
-
-# Adds user go bin to PATH
-fish_add_path /home/daniel/go/bin
-
-# Adds fnm (node version manager like nvm) to PATH
-fish_add_path /home/daniel/.local/share/fnm
-fnm env --use-on-cd | source
 
 # Quick navigation to common configs
 alias gof="cd ~/.config/fish"
