@@ -8,10 +8,10 @@
     - `sudo dd bs=4M if=/path/to/file.iso of=/dev/sdX status=progress oflag=sync`
 - Boot from USB. Disable Secure Boot if necessary.
 
-## 2. Set Keyboard Layout (if not US)
+## 2. Optionally, set Keyboard Layout (if not US)
 - List keymaps:  
   `localectl list-keymaps`
-- Set Hungarian layout:  
+- If needed, to set Hungarian layout:
   `loadkeys hu`
 
 ## 3. Verify Boot Mode
@@ -24,29 +24,29 @@
 - For Wi-Fi (using `iwctl`):
 
   1. Start the interactive tool:
-     ```
+     ```fish
      iwctl
      ```
   2. List available devices:
-     ```
+     ```fish
      device list
      ```
   3. Scan for Wi-Fi networks (replace `wlan0` with your device if different):
-     ```
+     ```fish
      station wlan0 scan
      ```
   4. List available networks:
-     ```
+     ```fish
      station wlan0 get-networks
      ```
   5. Connect to your network (replace `SSID` with your network name):
-     ```
+     ```fish
      station wlan0 connect SSID
      ```
      - You will be prompted for the Wi-Fi password if required.
 
   6. Exit `iwctl`:
-     ```
+     ```fish
      exit
      ```
 - Test:  
@@ -74,25 +74,25 @@
 - **EFI Partition (`/dev/nvme0n1p1`):**
   - Partition doesn't need to be re-created if exists
   - Reformat only if you want a clean boot setup or are experiencing boot issues:
-    ```
+    ```fish
     mkfs.fat -F32 /dev/nvme0n1p1
     ```
   - Reformatting erases all existing bootloaders and data on the EFI partition.
   - Reformatting is strongly advised, as existing bootloaders can cause issues in the BIOS.
 - **Swap Partition (`/dev/nvme0n1p3`):**
   - Always initialize the swap partition before use:
-    ```
+    ```fish
     mkswap /dev/nvme0n1p3
     ```
   - This erases any old data and prepares the partition for swapping.
 - **Root Partition (`/dev/nvme0n1p2`):**
   - Format as desired:
     - For ext4:
-      ```
+      ```fish
       mkfs.ext4 /dev/nvme0n1p2
       ```
     - For btrfs:
-      ```
+      ```fish
       mkfs.btrfs /dev/nvme0n1p2
       ```
 ## 8. Mount File Systems
@@ -141,12 +141,12 @@
 
 ## 15. Network Configuration
 - Set your hostname (replace `myhostname` with your desired hostname):
-  ```
+  ```fish
   echo myhostname > /etc/hostname
   ```
 
 - Configure `/etc/hosts`:
-  ```
+  ```fish
   127.0.0.1   localhost
   ::1         localhost
   127.0.1.1   myhostname.localdomain myhostname
@@ -154,14 +154,14 @@
   *(Replace `myhostname` with your chosen hostname.)*
 
 - Enable NetworkManager to start at boot:
-  ```
+  ```fish
   systemctl enable NetworkManager
   ```
 - (Optional) Install `network-manager-applet` if you plan to use a graphical desktop.
 
 **After first boot:**  
 - To connect to Wi-Fi, use the text-based UI:
-  ```
+  ```fish
   nmtui
   ```
   - Select "Activate a connection", choose your Wi-Fi network, and enter the password.
@@ -169,12 +169,12 @@
 
 ## 16. Bluetooth Setup
 - Enable and start Bluetooth service (start is ignored in chroot!!):
-  ```
+  ```fish
   systemctl enable bluetooth
   systemctl start bluetooth
   ```
 - To pair devices, use:
-  ```
+  ```fish
   bluetoothctl
   ```
   - `power on`
@@ -194,15 +194,15 @@
 
 ## 19. Boot Loader (GRUB, UEFI)
 - Install GRUB and efibootmgr:
-  ```
+  ```fish
   pacman -S grub efibootmgr
   ```
 - Install GRUB to the EFI partition:
-  ```
+  ```fish
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
   ```
 - Generate the GRUB configuration file:
-  ```
+  ```fish
   grub-mkconfig -o /boot/grub/grub.cfg
   ```
 - (Optional) Verify:
@@ -219,33 +219,30 @@
 - Reinstall GRUB and regenerate the GRUB config.
 - Regenerate `/etc/fstab` or update the UUID for `/boot` (EFI) if it changed.
 - Copy GRUB to the fallback location for Acer laptops:
-  ```
+  ```fish
   mkdir -p /boot/EFI/BOOT
   cp /boot/EFI/GRUB/grubx64.efi /boot/EFI/BOOT/BOOTX64.EFI
   ```
 - In BIOS, set your HDD/SSD as the first boot device. On Acer Nitro 5, you may need to use the F12 boot menu or manually select the fallback bootloader.
 
 - If you get "dependency failed for /boot" or "timed out waiting for device," update `/etc/fstab` with the new EFI partition UUID or regenerate it:
-  ```
+  ```fish
   genfstab -U /mnt > /mnt/etc/fstab
   ```
 - If GRUB menu is missing Arch Linux, reinstall the kernel and regenerate the GRUB config.
 
-
-
-
 ## 20. Create a User and Configure Sudo
 - Install sudo:
-  ```
+  ```fish
   pacman -S sudo
   ```
 - Create your user (replace `yourusername`):
-  ```
+  ```fish
   useradd -m -G wheel -s /bin/bash yourusername
   passwd yourusername
   ```
 - if default shell needs to be fish, then
-  ```
+  ```fish
   pacman -S fish
   useradd -m -G wheel -s /bin/fish yourusername
   passwd yourusername
@@ -253,11 +250,11 @@
 
 - Allow users in the `wheel` group to use sudo:
   - Edit `/etc/sudoers` with `visudo`:
-    ```
+    ```fish
     sudo EDITOR=nvim visudo
     ```
   - Uncomment the line:
-    ```
+    ```fish
     %wheel ALL=(ALL:ALL) ALL
     ```
     (Remove the `#` at the start of the line.)
@@ -274,7 +271,7 @@
 - Remove installation media.
 - Log in as your user.
 - Update the system:
-  ```
+  ```fish
   sudo pacman -Syu
   ```
 - For further setup, see [General Recommendations](https://wiki.archlinux.org/title/General_recommendations).
@@ -282,27 +279,27 @@
 
 ## 23. (If applicable): NVIDIA Driver Setup (580xx series, post-install)
 - Install kerner headers (required from DMKS modules) - ideally, should be installed already after step 10
-  ```
+  ```fish
   sudo pacman -S linux-headers
   ```
 - If you use a different kernel (e.g., `linux-lts`), install the corresponding headers package (e.g., `linux-lts-headers`).
 - Install the NVIDIA 580xx DKMS driver and utilities (using yay or another AUR helper):
-  ```
+  ```fish
   yay -S nvidia-580xx-dkms nvidia-580xx-utils nvidia-580xx-settings
   ```
 - For Vulkan support (optional, for gaming/graphics), Steam or 32-bit apps:
-  ```
+  ```fish
   sudo pacman -S vulkan-icd-loader lib32-vulkan-icd-loader lib32-nvidia-580xx-utils
 - Regenerate the initramfs to ensure the NVIDIA kernel module is included at boot:
-  ```
+  ```fish
   sudo mkinitcpio -P
   ```
 - Reboot to load the NVIDIA kernel module:
-  ```
+  ```fish
   sudo reboot
   ```
 - After reboot check
-  ```
+  ```fish
   # Check the module is loaded
   lsmod | grep nvidia
 
@@ -315,27 +312,42 @@
 - on my Acer Nitro 5 with hybrid GPU (AMD + Nvidia)
 - see [Niri - Multi GPU configuration](https://wiki.archlinux.org/title/Niri)
     - check render devices:
-    ```
+    ```fish
     ls -l /dev/dri/by-path/*-render
     lrwxrwxrwx - root 27 Apr 22:57  /dev/dri/by-path/pci-0000:01:00.0-render -> ../renderD129
     lrwxrwxrwx - root 27 Apr 22:57  /dev/dri/by-path/pci-0000:05:00.0-render -> ../renderD128
 
     ```
     - then using the address check which one is the AMD GPU
-    ```
+    ```fish
     lspci -s 01:00.0
     01:00.0 3D controller: NVIDIA Corporation GP107M [GeForce GTX 1050 Ti Mobile] (rev a1)
     lspci -s 05:00.0
     05:00.0 VGA compatible controller: Advanced Micro Devices, Inc. [AMD/ATI] Picasso/Raven 2 [Radeon Vega Series / Radeon Vega Mobile Series] (rev c1)
     ```
     - this identifies the AMD GPU as renderD128 -> set this in ~/.config/niri/config.kdl as per the below:
-    ```
+    ```fish
     ~/.config/niri/config.kdl
     debug {
         render-drm-device "/dev/dri/renderD128"
     }
 
     ```
+
+## 24 Notes on fonts
+- install as required, for current setup:
+```fish
+sudo pacman -Syu ttf-jetbrains-mono-nerd
+```
+- certain chars are not included (e.g. codecompanion uses the sparkle emoji ✨, which is not a nerd font glyph), so recommended to install:
+```fish
+sudo pacman -Syu noto-fonts-emoji
+```
+- after install, refresh font cache and restart terminal:
+```fish
+fc-cache -fv
+```
+
 ---
 
 **Summary of partition usage:**
